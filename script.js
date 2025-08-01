@@ -1,26 +1,69 @@
 document.addEventListener('DOMContentLoaded', () => {
     let vocabulaire = {};
+    const languesPredifines = {
+        'fr': 'Français', 'en': 'Anglais', 'es': 'Espagnol', 'it': 'Italien', 'de': 'Allemand'
+    };
 
+    // Liens de navigation
+    const lienAccueil = document.getElementById('lien-accueil');
+    const lienExercice = document.getElementById('lien-exercice');
+    const sectionAccueil = document.getElementById('section-accueil');
+    const sectionExercice = document.getElementById('section-exercice');
+
+    // Éléments de la section d'accueil
+    const formAjout = document.getElementById('form-ajout');
+    const motSourceInput = document.getElementById('mot-source');
+    const langueSourceSelect = document.getElementById('langue-source');
+    const motCibleInput = document.getElementById('mot-cible');
+    const langueCibleSelect = document.getElementById('langue-cible');
+    const listeUl = document.getElementById('liste-ul');
+    const boutonReset = document.getElementById('bouton-reset');
+
+    // Éléments de la section d'exercice
     const typeExerciceSelect = document.getElementById('type-exercice');
     const selectLangueSource = document.getElementById('select-langue-source');
     const selectLangueCible = document.getElementById('select-langue-cible');
     const boutonDemarrer = document.getElementById('bouton-demarrer');
     const zoneConfiguration = document.getElementById('zone-configuration');
-    const zoneExercice = document.getElementById('zone-exercice');
+    const zoneExerciceContenu = document.getElementById('zone-exercice-contenu');
     const consigneExercice = document.getElementById('consigne-exercice');
     const exerciceContenuDiv = document.getElementById('exercice-contenu');
     const messageFeedback = document.getElementById('message-feedback');
     const boutonSuivant = document.getElementById('bouton-suivant');
 
-    const languesPredifines = {
-        'fr': 'Français', 'en': 'Anglais', 'es': 'Espagnol', 'it': 'Italien', 'de': 'Allemand'
-    };
+    // Variables pour l'exercice
+    let motCourant;
+    let motsExercice;
+    let langueSourceExercice;
+    let langueCibleExercice;
+    let typeExerciceCourant;
+    let motsMelanges;
+    let reponseOrdre = [];
 
+    // Fonctions de chargement/sauvegarde
     function chargerVocabulaire() {
         const vocabulaireSauvegarder = localStorage.getItem('vocabulaireMultiLangue');
         if (vocabulaireSauvegarder) {
             vocabulaire = JSON.parse(vocabulaireSauvegarder);
+            afficherMots();
             peuplerSelecteurs();
+        }
+    }
+
+    function sauvegarderVocabulaire() {
+        localStorage.setItem('vocabulaireMultiLangue', JSON.stringify(vocabulaire));
+    }
+
+    // Fonctions d'affichage
+    function afficherMots() {
+        listeUl.innerHTML = '';
+        for (const paire in vocabulaire) {
+            const [langue1, langue2] = paire.split('-');
+            vocabulaire[paire].forEach((paireMots) => {
+                const li = document.createElement('li');
+                li.textContent = `${paireMots[langue1]} (${languesPredifines[langue1] || langue1}) - ${paireMots[langue2]} (${languesPredifines[langue2] || langue2})`;
+                listeUl.appendChild(li);
+            });
         }
     }
 
@@ -50,14 +93,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    let motCourant;
-    let motsExercice;
-    let langueSourceExercice;
-    let langueCibleExercice;
-    let typeExerciceCourant;
-    let motsMelanges;
-    let reponseOrdre = [];
+    // Gestion de la navigation
+    lienAccueil.addEventListener('click', (e) => {
+        e.preventDefault();
+        sectionAccueil.style.display = 'block';
+        sectionExercice.style.display = 'none';
+    });
 
+    lienExercice.addEventListener('click', (e) => {
+        e.preventDefault();
+        sectionAccueil.style.display = 'none';
+        sectionExercice.style.display = 'block';
+        zoneConfiguration.style.display = 'block';
+        zoneExerciceContenu.style.display = 'none';
+        peuplerSelecteurs();
+    });
+
+    // Gestion de l'ajout et du reset
+    formAjout.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const motSource = motSourceInput.value.trim();
+        const langueSource = langueSourceSelect.value.trim().toLowerCase();
+        const motCible = motCibleInput.value.trim();
+        const langueCible = langueCibleSelect.value.trim().toLowerCase();
+
+        if (motSource && langueSource && motCible && langueCible) {
+            const clePaire = [langueSource, langueCible].sort().join('-');
+            
+            if (!vocabulaire[clePaire]) {
+                vocabulaire[clePaire] = [];
+            }
+            
+            const nouvellePaire = {};
+            nouvellePaire[langueSource] = motSource;
+            nouvellePaire[langueCible] = motCible;
+            
+            vocabulaire[clePaire].push(nouvellePaire);
+            
+            sauvegarderVocabulaire();
+            afficherMots();
+            
+            motSourceInput.value = '';
+            motCibleInput.value = '';
+        }
+    });
+
+    boutonReset.addEventListener('click', () => {
+        if (confirm("Êtes-vous sûr de vouloir réinitialiser tout le vocabulaire ? Cette action est irréversible.")) {
+            localStorage.removeItem('vocabulaireMultiLangue');
+            vocabulaire = {};
+            afficherMots();
+        }
+    });
+
+    // Logique des exercices (identique à la version précédente)
     boutonDemarrer.addEventListener('click', () => {
         const langueSource = selectLangueSource.value;
         const langueCible = selectLangueCible.value;
@@ -84,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         zoneConfiguration.style.display = 'none';
-        zoneExercice.style.display = 'block';
+        zoneExerciceContenu.style.display = 'block';
         messageFeedback.textContent = '';
         boutonSuivant.style.display = 'none';
         
