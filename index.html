@@ -16,8 +16,10 @@
         <section id="ajout-mots">
             <h2>Ajouter un nouveau mot</h2>
             <form id="form-ajout">
-                <input type="text" id="mot-fr" placeholder="Mot en Français" required>
-                <input type="text" id="mot-en" placeholder="Mot en Anglais" required>
+                <input type="text" id="mot-source" placeholder="Mot dans la langue source" required>
+                <input type="text" id="langue-source" placeholder="Langue source (ex: fr)" required>
+                <input type="text" id="mot-cible" placeholder="Mot dans la langue cible" required>
+                <input type="text" id="langue-cible" placeholder="Langue cible (ex: en)" required>
                 <button type="submit">Ajouter</button>
             </form>
         </section>
@@ -30,6 +32,15 @@
 
         <section id="zone-exercice">
             <h2>Exercice</h2>
+            <div id="selection-langue-exercice">
+                <select id="select-langue-source">
+                    </select>
+                <span>→</span>
+                <select id="select-langue-cible">
+                    </select>
+                <button id="bouton-demarrer">Démarrer l'exercice</button>
+            </div>
+            
             <p id="consigne-exercice"></p>
             <div id="choix-reponse">
                 </div>
