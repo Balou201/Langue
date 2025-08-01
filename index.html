@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apprends ton Vocabulaire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Apprends ton Vocabulaire</h1>
+    </header>
+
+    <main>
+        <section id="ajout-mots">
+            <h2>Ajouter un nouveau mot</h2>
+            <form id="form-ajout">
+                <input type="text" id="mot-fr" placeholder="Mot en Français" required>
+                <input type="text" id="mot-en" placeholder="Mot en Anglais" required>
+                <button type="submit">Ajouter</button>
+            </form>
+        </section>
+
+        <section id="liste-mots">
+            <h2>Mon vocabulaire</h2>
+            <ul id="liste-ul">
+                </ul>
+        </section>
+
+        <section id="zone-exercice">
+            <h2>Exercice</h2>
+            <p id="consigne-exercice"></p>
+            <div id="choix-reponse">
+                </div>
+            <p id="message-feedback"></p>
+            <button id="bouton-suivant" style="display:none;">Mot suivant</button>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
