@@ -1,63 +1,134 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Liste pour stocker les paires de mots
-    let vocabulaire = [];
+    // Le vocabulaire sera maintenant stocké par paires de langues
+    let vocabulaire = {};
 
     const formAjout = document.getElementById('form-ajout');
-    const motFrInput = document.getElementById('mot-fr');
-    const motEnInput = document.getElementById('mot-en');
+    const motSourceInput = document.getElementById('mot-source');
+    const langueSourceInput = document.getElementById('langue-source');
+    const motCibleInput = document.getElementById('mot-cible');
+    const langueCibleInput = document.getElementById('langue-cible');
     const listeUl = document.getElementById('liste-ul');
+    const selectLangueSource = document.getElementById('select-langue-source');
+    const selectLangueCible = document.getElementById('select-langue-cible');
+    const boutonDemarrer = document.getElementById('bouton-demarrer');
     const consigneExercice = document.getElementById('consigne-exercice');
     const choixReponseDiv = document.getElementById('choix-reponse');
     const messageFeedback = document.getElementById('message-feedback');
     const boutonSuivant = document.getElementById('bouton-suivant');
 
-    // Charger le vocabulaire depuis le stockage local du navigateur
+    // Charger le vocabulaire depuis le stockage local
     function chargerVocabulaire() {
-        const vocabulaireSauvegarder = localStorage.getItem('vocabulaire');
+        const vocabulaireSauvegarder = localStorage.getItem('vocabulaireMultiLangue');
         if (vocabulaireSauvegarder) {
             vocabulaire = JSON.parse(vocabulaireSauvegarder);
             afficherMots();
+            peuplerSelecteurs();
         }
     }
 
     // Sauvegarder le vocabulaire dans le stockage local
     function sauvegarderVocabulaire() {
-        localStorage.setItem('vocabulaire', JSON.stringify(vocabulaire));
+        localStorage.setItem('vocabulaireMultiLangue', JSON.stringify(vocabulaire));
     }
 
     // Afficher les mots dans la liste
     function afficherMots() {
         listeUl.innerHTML = '';
-        vocabulaire.forEach((paire) => {
-            const li = document.createElement('li');
-            li.textContent = `${paire.fr} - ${paire.en}`;
-            listeUl.appendChild(li);
-        });
-        if (vocabulaire.length > 0) {
-            commencerExercice();
+        for (const paire in vocabulaire) {
+            const [langue1, langue2] = paire.split('-');
+            vocabulaire[paire].forEach((paireMots) => {
+                const li = document.createElement('li');
+                li.textContent = `${paireMots[langue1]} (${langue1}) - ${paireMots[langue2]} (${langue2})`;
+                listeUl.appendChild(li);
+            });
         }
+    }
+
+    // Peupler les menus déroulants avec les langues disponibles
+    function peuplerSelecteurs() {
+        selectLangueSource.innerHTML = '<option value="">-- Choisir --</option>';
+        selectLangueCible.innerHTML = '<option value="">-- Choisir --</option>';
+        
+        const languesDisponibles = new Set();
+        for (const paire in vocabulaire) {
+            const [langue1, langue2] = paire.split('-');
+            languesDisponibles.add(langue1);
+            languesDisponibles.add(langue2);
+        }
+
+        languesDisponibles.forEach(langue => {
+            const optionSource = document.createElement('option');
+            optionSource.value = langue;
+            optionSource.textContent = langue;
+            selectLangueSource.appendChild(optionSource);
+            
+            const optionCible = document.createElement('option');
+            optionCible.value = langue;
+            optionCible.textContent = langue;
+            selectLangueCible.appendChild(optionCible);
+        });
     }
 
     // Gérer l'ajout de nouveaux mots
     formAjout.addEventListener('submit', (e) => {
         e.preventDefault();
-        const motFr = motFrInput.value.trim();
-        const motEn = motEnInput.value.trim();
-        if (motFr && motEn) {
-            vocabulaire.push({ fr: motFr, en: motEn });
+        const motSource = motSourceInput.value.trim();
+        const langueSource = langueSourceInput.value.trim().toLowerCase();
+        const motCible = motCibleInput.value.trim();
+        const langueCible = langueCibleInput.value.trim().toLowerCase();
+
+        if (motSource && langueSource && motCible && langueCible) {
+            // Créer une clé unique pour la paire de langues, ex: "fr-en" ou "en-fr"
+            const clePaire = [langueSource, langueCible].sort().join('-');
+            
+            if (!vocabulaire[clePaire]) {
+                vocabulaire[clePaire] = [];
+            }
+            
+            const nouvellePaire = {};
+            nouvellePaire[langueSource] = motSource;
+            nouvellePaire[langueCible] = motCible;
+            
+            vocabulaire[clePaire].push(nouvellePaire);
+            
             sauvegarderVocabulaire();
             afficherMots();
-            motFrInput.value = '';
-            motEnInput.value = '';
+            peuplerSelecteurs(); // Mettre à jour les selecteurs
+            
+            motSourceInput.value = '';
+            langueSourceInput.value = '';
+            motCibleInput.value = '';
+            langueCibleInput.value = '';
+        }
+    });
+
+    // Gérer le démarrage de l'exercice
+    boutonDemarrer.addEventListener('click', () => {
+        const langueSource = selectLangueSource.value;
+        const langueCible = selectLangueCible.value;
+
+        if (langueSource && langueCible && langueSource !== langueCible) {
+            commencerExercice(langueSource, langueCible);
+        } else {
+            alert('Veuillez choisir deux langues différentes pour l\'exercice.');
         }
     });
 
     // Commencer un nouvel exercice
     let motCourant;
+    let motsExercice;
+    let langueSourceExercice;
+    let langueCibleExercice;
 
-    function commencerExercice() {
-        if (vocabulaire.length < 4) {
-            consigneExercice.textContent = "Ajoute au moins 4 mots pour commencer les exercices !";
+    function commencerExercice(langueSource, langueCible) {
+        langueSourceExercice = langueSource;
+        langueCibleExercice = langueCible;
+
+        const clePaire = [langueSource, langueCible].sort().join('-');
+        motsExercice = vocabulaire[clePaire];
+        
+        if (!motsExercice || motsExercice.length < 4) {
+            consigneExercice.textContent = "Ajoute au moins 4 mots pour cette paire de langues pour commencer l'exercice !";
             choixReponseDiv.innerHTML = '';
             messageFeedback.textContent = '';
             boutonSuivant.style.display = 'none';
@@ -67,13 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
         messageFeedback.textContent = '';
         boutonSuivant.style.display = 'none';
         
-        const indexAleatoire = Math.floor(Math.random() * vocabulaire.length);
-        motCourant = vocabulaire[indexAleatoire];
+        const indexAleatoire = Math.floor(Math.random() * motsExercice.length);
+        motCourant = motsExercice[indexAleatoire];
         
-        consigneExercice.textContent = `Quel est la traduction de "${motCourant.fr}" ?`;
+        consigneExercice.textContent = `Quel est la traduction de "${motCourant[langueSource]}" ?`;
 
         const choixPossibles = [motCourant];
-        let autresMots = vocabulaire.filter(m => m !== motCourant);
+        let autresMots = motsExercice.filter(m => m !== motCourant);
         
         // Sélectionner 3 autres mots aléatoires
         while (choixPossibles.length < 4 && autresMots.length > 0) {
@@ -88,25 +159,27 @@ document.addEventListener('DOMContentLoaded', () => {
         choixReponseDiv.innerHTML = '';
         choixPossibles.forEach(choix => {
             const bouton = document.createElement('button');
-            bouton.textContent = choix.en;
-            bouton.addEventListener('click', () => verifierReponse(choix.en));
+            bouton.textContent = choix[langueCible];
+            bouton.addEventListener('click', () => verifierReponse(choix[langueCible]));
             choixReponseDiv.appendChild(bouton);
         });
     }
 
     // Vérifier la réponse de l'utilisateur
     function verifierReponse(reponse) {
-        if (reponse === motCourant.en) {
+        if (reponse === motCourant[langueCibleExercice]) {
             messageFeedback.textContent = "Bonne réponse ! 🎉";
             messageFeedback.style.color = "green";
         } else {
-            messageFeedback.textContent = `Mauvaise réponse. La bonne réponse était "${motCourant.en}".`;
+            messageFeedback.textContent = `Mauvaise réponse. La bonne réponse était "${motCourant[langueCibleExercice]}".`;
             messageFeedback.style.color = "red";
         }
         boutonSuivant.style.display = 'block';
     }
 
-    boutonSuivant.addEventListener('click', commencerExercice);
+    boutonSuivant.addEventListener('click', () => {
+        commencerExercice(langueSourceExercice, langueCibleExercice);
+    });
     
     // Initialiser le site
     chargerVocabulaire();
