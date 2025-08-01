@@ -17,11 +17,26 @@
             <h2>Ajouter un nouveau mot</h2>
             <form id="form-ajout">
                 <input type="text" id="mot-source" placeholder="Mot dans la langue source" required>
-                <input type="text" id="langue-source" placeholder="Langue source (ex: fr)" required>
+                <select id="langue-source">
+                    <option value="">Langue source...</option>
+                    <option value="fr">Français</option>
+                    <option value="en">Anglais</option>
+                    <option value="es">Espagnol</option>
+                    <option value="it">Italien</option>
+                    <option value="de">Allemand</option>
+                </select>
                 <input type="text" id="mot-cible" placeholder="Mot dans la langue cible" required>
-                <input type="text" id="langue-cible" placeholder="Langue cible (ex: en)" required>
+                <select id="langue-cible">
+                    <option value="">Langue cible...</option>
+                    <option value="fr">Français</option>
+                    <option value="en">Anglais</option>
+                    <option value="es">Espagnol</option>
+                    <option value="it">Italien</option>
+                    <option value="de">Allemand</option>
+                </select>
                 <button type="submit">Ajouter</button>
             </form>
+            <button id="bouton-reset">Réinitialiser le vocabulaire</button>
         </section>
 
         <section id="liste-mots">
@@ -32,18 +47,28 @@
 
         <section id="zone-exercice">
             <h2>Exercice</h2>
-            <div id="selection-langue-exercice">
-                <select id="select-langue-source">
-                    </select>
+            <div id="selection-exercice">
+                <select id="type-exercice">
+                    <option value="choix-multiples">Choix multiples</option>
+                    <option value="ecriture">Écriture</option>
+                </select>
+                <select id="select-langue-source"></select>
                 <span>→</span>
-                <select id="select-langue-cible">
-                    </select>
+                <select id="select-langue-cible"></select>
                 <button id="bouton-demarrer">Démarrer l'exercice</button>
             </div>
             
             <p id="consigne-exercice"></p>
-            <div id="choix-reponse">
-                </div>
+            
+            <div id="exercice-choix-multiples">
+                <div id="choix-reponse"></div>
+            </div>
+
+            <div id="exercice-ecriture" style="display:none;">
+                <input type="text" id="input-reponse" placeholder="Écris la traduction ici">
+                <button id="bouton-soumettre">Soumettre</button>
+            </div>
+            
             <p id="message-feedback"></p>
             <button id="bouton-suivant" style="display:none;">Mot suivant</button>
         </section>
