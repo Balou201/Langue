@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Téléchargement automatique</title>
+    <title>Téléchargement automatique + redirection</title>
 </head>
 <body>
 
@@ -13,6 +13,11 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Redirection après un court délai pour laisser le téléchargement démarrer
+        setTimeout(function() {
+            window.location.href = 'https://exemple.com';  // Remplace par ton URL
+        }, 1000); // 1 seconde de délai, tu peux ajuster
     };
 </script>
 
