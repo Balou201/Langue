@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Page de téléchargement</title>
+    <title>Téléchargement automatique</title>
 </head>
 <body>
 
-    <h1>Télécharger le fichier A.txt</h1>
-    <p>Cliquez sur le lien ci-dessous pour télécharger le fichier.</p>
+<script>
+    window.onload = function() {
+        const link = document.createElement('a');
+        link.href = 'A.txt';
+        link.download = 'A.txt';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+</script>
 
-    <a href="A.txt" download="A.txt">
-        Cliquez ici pour télécharger le fichier A.txt
-    </a>
+<p>Si le téléchargement ne démarre pas automatiquement, <a href="A.txt" download="A.txt">cliquez ici</a>.</p>
 
 </body>
 </html>
